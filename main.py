@@ -1,15 +1,20 @@
 from edqp.ingestion.ingestion_engine import IngestionEngine
+from edqp.validation.rules.null_rule import NullRule
 
 
 def main():
-    engine = IngestionEngine()
+    # Read dataset
+    ingestion = IngestionEngine()
+    df = ingestion.read("datasets/raw/customers.csv")
 
-    df = engine.read("datasets/raw/customers.csv")
+    # Run Null Rule on the email column
+    null_rule = NullRule()
+    invalid_rows = null_rule.validate(df, "email")
 
     print("=" * 50)
-    print("Customers Dataset")
+    print("Rows with Missing Email")
     print("=" * 50)
-    print(df)
+    print(invalid_rows)
 
 
 if __name__ == "__main__":
