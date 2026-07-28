@@ -1,0 +1,7 @@
+customer_id,name,email,age,country
+1,John Doe,john@gmail.com,25,Germany
+2,Jane Smith,jane@gmail.com,32,France
+3,Bob Wilson,bob@gmail,40,Germany
+4,Alice Brown,,28,Netherlands
+5,John Doe,john@gmail.com,25,Germany
+6,Tom Lee,tom@gmail.com,-5,Germany

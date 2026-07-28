@@ -1,15 +1,15 @@
-from edqp.config.config_loader import ConfigLoader
+from edqp.ingestion.ingestion_engine import IngestionEngine
 
 
 def main():
-    config = ConfigLoader().get()
+    engine = IngestionEngine()
+
+    df = engine.read("datasets/raw/customers.csv")
 
     print("=" * 50)
-    print(config["project"]["name"])
-    print("Version:", config["project"]["version"])
-    print("AWS Region:", config["aws"]["region"])
-    print("Raw Data Path:", config["paths"]["raw"])
+    print("Customers Dataset")
     print("=" * 50)
+    print(df)
 
 
 if __name__ == "__main__":
