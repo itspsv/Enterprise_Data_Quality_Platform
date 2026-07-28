@@ -1,10 +1,14 @@
-from edqp import __version__
+from edqp.config.config_loader import ConfigLoader
 
 
 def main():
+    config = ConfigLoader().get()
+
     print("=" * 50)
-    print("Enterprise Data Quality Platform")
-    print(f"Version: {__version__}")
+    print(config["project"]["name"])
+    print("Version:", config["project"]["version"])
+    print("AWS Region:", config["aws"]["region"])
+    print("Raw Data Path:", config["paths"]["raw"])
     print("=" * 50)
 
 

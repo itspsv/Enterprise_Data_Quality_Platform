@@ -1,0 +1,21 @@
+project:
+  name: Enterprise Data Quality Platform
+  version: 0.1.0
+
+aws:
+  region: eu-central-1
+
+snowflake:
+  account: ""
+  user: ""
+  password: ""
+  warehouse: ""
+  database: ""
+  schema: ""
+
+paths:
+  raw: datasets/raw
+  bronze: datasets/bronze
+  silver: datasets/silver
+  gold: datasets/gold
+  quarantine: datasets/quarantine
