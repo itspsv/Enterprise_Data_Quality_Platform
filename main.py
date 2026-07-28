@@ -1,20 +1,22 @@
 from edqp.ingestion.ingestion_engine import IngestionEngine
-from edqp.validation.rules.null_rule import NullRule
+from edqp.validation.rules.duplicate_rule import DuplicateRule
 
 
 def main():
-    # Read dataset
     ingestion = IngestionEngine()
     df = ingestion.read("datasets/raw/customers.csv")
 
-    # Run Null Rule on the email column
-    null_rule = NullRule()
-    invalid_rows = null_rule.validate(df, "email")
+    duplicate_rule = DuplicateRule()
+
+    duplicates = duplicate_rule.validate(
+        df,
+        ["name", "email"]
+    )
 
     print("=" * 50)
-    print("Rows with Missing Email")
+    print("Duplicate Records")
     print("=" * 50)
-    print(invalid_rows)
+    print(duplicates)
 
 
 if __name__ == "__main__":
