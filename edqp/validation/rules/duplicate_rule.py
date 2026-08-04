@@ -3,11 +3,33 @@ import polars as pl
 
 class DuplicateRule:
     """
-    Checks for duplicate records based on specified columns.
+    Detect duplicate records while keeping the first occurrence.
+    Only subsequent duplicates are returned.
     """
 
     def validate(self, df: pl.DataFrame, columns: list[str]) -> pl.DataFrame:
         """
-        Returns all duplicate rows based on the given columns.
+        Returns duplicate rows excluding the first occurrence.
         """
-        return df.filter(pl.struct(columns).is_duplicated())
+
+        # Mark duplicate occurrences while keeping the first record
+        duplicate_mask = (
+            df.with_columns(
+                pl.struct(columns)
+                .is_duplicated()
+                .alias("is_duplicate")
+            )
+            .with_columns(
+                pl.struct(columns)
+                .cum_count()
+                .over(columns)
+                .alias("occurrence")
+            )
+            .filter(
+                (pl.col("is_duplicate")) &
+                (pl.col("occurrence") > 1)
+            )
+            .drop(["is_duplicate", "occurrence"])
+        )
+
+        return duplicate_mask

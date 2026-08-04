@@ -28,11 +28,16 @@ class ValidationEngine:
         results = {}
 
         for item in self.rules:
+
             invalid_rows = item["rule"].validate(
                 df,
                 **item["kwargs"]
             )
 
-            results[item["name"]] = invalid_rows
+            results[item["name"]] = {
+                "rows": invalid_rows,
+                "count": invalid_rows.height,
+                "indices": set(invalid_rows.get_column("customer_id").to_list())
+            }
 
         return results
