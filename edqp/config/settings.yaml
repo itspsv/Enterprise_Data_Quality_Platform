@@ -19,3 +19,27 @@ paths:
   silver: datasets/silver
   gold: datasets/gold
   quarantine: datasets/quarantine
+  metadata: metadata
+
+validation:
+  primary_key: customer_id
+
+  rules:
+    - name: Null Email
+      type: "null"
+      column: email
+
+    - name: Duplicate Customer
+      type: "duplicate"
+      columns:
+        - name
+        - email
+
+    - name: Invalid Email
+      type: "email"
+      column: email
+
+    - name: Invalid Age
+      type: "range"
+      column: age
+      minimum: 0
