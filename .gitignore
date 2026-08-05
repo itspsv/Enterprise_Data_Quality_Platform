@@ -17,3 +17,8 @@ __pycache__/
 
 # Parquet
 *.parquet
+
+# Generated pipeline outputs
+metadata/
+datasets/silver/
+datasets/quarantine/

@@ -1,9 +1,10 @@
 project:
-  name: Enterprise Data Quality Platform
-  version: 0.1.0
+  name: Enterprise Data Reliability Platform
+  version: 1.0.0
 
 aws:
   region: eu-central-1
+  bucket: edqp
 
 snowflake:
   account: ""
@@ -13,11 +14,12 @@ snowflake:
   database: ""
   schema: ""
 
+datasets:
+  source_file: customers.csv
+
 paths:
   raw: datasets/raw
-  bronze: datasets/bronze
   silver: datasets/silver
-  gold: datasets/gold
   quarantine: datasets/quarantine
   metadata: metadata
 
