@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import polars as pl
 import streamlit as st
 
+from edqp.ai.quality_summary import QualitySummary
+
 st.set_page_config(
     page_title="Enterprise Data Reliability Platform",
     layout="wide",
@@ -86,12 +88,27 @@ fig = plt.figure(figsize=(8, 4))
 
 plt.bar(rule_names, rule_counts)
 
-plt.xlabel("Validation Rule")
-plt.ylabel("Failed Records")
-
 plt.xticks(rotation=20)
 
+plt.ylabel("Failed Records")
+
 st.pyplot(fig)
+
+st.divider()
+
+st.subheader("AI Quality Summary")
+
+report = {
+    "dataset": latest["dataset"][0],
+    "quality_score": quality,
+    "valid_rows": valid,
+    "invalid_rows": invalid,
+    "rules": rule_failures,
+}
+
+summary = QualitySummary().generate(report)
+
+st.text(summary)
 
 st.divider()
 
