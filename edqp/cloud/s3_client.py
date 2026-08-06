@@ -3,6 +3,8 @@ import os
 import boto3
 from dotenv import load_dotenv
 
+from edqp.logging.logger import PipelineLogger
+
 
 class S3Client:
     """
@@ -12,6 +14,8 @@ class S3Client:
     def __init__(self):
 
         load_dotenv()
+
+        self.logger = PipelineLogger().get_logger()
 
         self.client = boto3.client(
             "s3",
@@ -39,7 +43,9 @@ class S3Client:
             object_name,
         )
 
-        print(f"Uploaded {local_file} -> s3://{bucket}/{object_name}")
+        self.logger.info(
+            f"Uploaded {local_file} -> s3://{bucket}/{object_name}"
+        )
 
     def download_file(
         self,
@@ -56,7 +62,9 @@ class S3Client:
             local_file,
         )
 
-        print(f"Downloaded s3://{bucket}/{object_name}")
+        self.logger.info(
+            f"Downloaded s3://{bucket}/{object_name}"
+        )
 
     def list_objects(
         self,

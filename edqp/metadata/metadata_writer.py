@@ -1,29 +1,36 @@
-from pathlib import Path
+import os
 
 import polars as pl
 
 
 class MetadataWriter:
     """
-    Saves pipeline metadata and appends new runs.
+    Saves pipeline execution metadata.
     """
 
     def save(
         self,
-        metadata: pl.DataFrame,
+        metadata: dict,
         output_path: str,
-    ) -> None:
+    ):
 
-        path = Path(output_path)
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-        path.parent.mkdir(parents=True, exist_ok=True)
+        new_metadata = pl.DataFrame([metadata])
 
-        if path.exists():
+        if os.path.exists(output_path):
 
-            existing = pl.read_parquet(path)
+            existing = pl.read_parquet(output_path)
 
-            metadata = pl.concat([existing, metadata])
+            metadata_df = pl.concat(
+                [existing, new_metadata],
+                how="diagonal",
+            )
 
-        metadata.write_parquet(path)
+        else:
 
-        print(f"Metadata saved to: {path}")
+            metadata_df = new_metadata
+
+        metadata_df.write_parquet(output_path)
+
+        print(f"Metadata saved to: {output_path}")

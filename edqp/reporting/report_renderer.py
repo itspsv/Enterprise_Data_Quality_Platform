@@ -1,29 +1,34 @@
+from edqp.logging.logger import PipelineLogger
+
+
 class ReportRenderer:
-    """
-    Displays a validation report in a readable format.
-    """
 
-    def display(self, report: dict):
+    def __init__(self):
 
-        print("=" * 60)
-        print("Validation Report")
-        print("=" * 60)
+        self.logger = PipelineLogger().get_logger()
 
-        print(f"Dataset         : {report['dataset']}")
-        print(f"Generated At    : {report['generated_at']}")
+    def display(self, report):
 
-        print()
+        self.logger.info("=" * 60)
+        self.logger.info("Validation Report")
+        self.logger.info("=" * 60)
 
-        print(f"Total Rows      : {report['total_rows']}")
-        print(f"Valid Rows      : {report['valid_rows']}")
-        print(f"Invalid Rows    : {report['invalid_rows']}")
+        self.logger.info(f"Dataset         : {report['dataset']}")
+        self.logger.info(f"Generated At    : {report['generated_at']}")
+        self.logger.info("")
 
-        print()
+        self.logger.info(f"Total Rows      : {report['total_rows']}")
+        self.logger.info(f"Valid Rows      : {report['valid_rows']}")
+        self.logger.info(f"Invalid Rows    : {report['invalid_rows']}")
+        self.logger.info("")
 
-        print(f"Quality Score   : {report['quality_score']}%")
+        self.logger.info(
+            f"Quality Score   : {report['quality_score']:.2f}%"
+        )
 
-        print("\nValidation Rules")
-        print("-" * 60)
+        self.logger.info("")
+        self.logger.info("Validation Rules")
+        self.logger.info("-" * 60)
 
-        for rule, count in report["rules"].items():
-            print(f"{rule:<25}: {count}")
+        for rule_name, failed_rows in report["rules"].items():
+            self.logger.info(f"{rule_name:<25}: {failed_rows}")

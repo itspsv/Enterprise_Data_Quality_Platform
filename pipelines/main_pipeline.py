@@ -4,6 +4,7 @@ import time
 from edqp.cloud.s3_client import S3Client
 from edqp.config.config_loader import ConfigLoader
 from edqp.ingestion.ingestion_engine import IngestionEngine
+from edqp.logging.logger import PipelineLogger
 from edqp.metadata.metadata_writer import MetadataWriter
 from edqp.metadata.pipeline_metadata import PipelineMetadata
 from edqp.processing.data_separator import DataSeparator
@@ -11,6 +12,7 @@ from edqp.registry.rule_registry import RuleRegistry
 from edqp.reporting.report_renderer import ReportRenderer
 from edqp.reporting.validation_report import ValidationReport
 from edqp.storage.dataset_writer import DatasetWriter
+from edqp.tracking.pipeline_tracker import PipelineTracker
 from edqp.validation.validation_engine import ValidationEngine
 
 
@@ -18,17 +20,23 @@ class MainPipeline:
 
     def run(self):
 
-        start = time.perf_counter()
+        logger = PipelineLogger().get_logger()
 
-        # ------------------------
-        # Load Configuration
-        # ------------------------
+        start = time.perf_counter()
 
         config = ConfigLoader().get()
 
         bucket = config["aws"]["bucket"]
-
         source_file = config["datasets"]["source_file"]
+
+        tracker = PipelineTracker()
+
+        if tracker.is_processed(source_file):
+
+            logger.warning(
+                f"{source_file} has already been processed. Skipping pipeline."
+            )
+            return
 
         raw_folder = config["paths"]["raw"]
         silver_folder = config["paths"]["silver"]
@@ -52,10 +60,6 @@ class MainPipeline:
             "pipeline_runs.parquet",
         )
 
-        # ------------------------
-        # Download Raw Dataset
-        # ------------------------
-
         s3 = S3Client()
 
         s3.download_file(
@@ -64,17 +68,9 @@ class MainPipeline:
             local_file=local_raw_file,
         )
 
-        # ------------------------
-        # Read Dataset
-        # ------------------------
-
         ingestion = IngestionEngine()
 
         df = ingestion.read(local_raw_file)
-
-        # ------------------------
-        # Validation
-        # ------------------------
 
         engine = ValidationEngine()
 
@@ -85,10 +81,6 @@ class MainPipeline:
 
         validation_results = engine.run(df)
 
-        # ------------------------
-        # Validation Report
-        # ------------------------
-
         report = ValidationReport().generate(
             dataset_name=source_file,
             df=df,
@@ -97,19 +89,11 @@ class MainPipeline:
 
         ReportRenderer().display(report)
 
-        # ------------------------
-        # Split Dataset
-        # ------------------------
-
         valid_df, invalid_df = DataSeparator().split(
             df=df,
             failed_ids=report["failed_ids"],
             primary_key=config["validation"]["primary_key"],
         )
-
-        # ------------------------
-        # Save Outputs
-        # ------------------------
 
         writer = DatasetWriter()
 
@@ -123,10 +107,6 @@ class MainPipeline:
             local_quarantine_file,
         )
 
-        # ------------------------
-        # Metadata
-        # ------------------------
-
         execution_time = time.perf_counter() - start
 
         metadata = PipelineMetadata().create(
@@ -138,10 +118,6 @@ class MainPipeline:
             metadata,
             local_metadata_file,
         )
-
-        # ------------------------
-        # Upload Outputs to S3
-        # ------------------------
 
         s3.upload_file(
             local_silver_file,
@@ -161,4 +137,6 @@ class MainPipeline:
             "metadata/pipeline_runs.parquet",
         )
 
-        print("\nPipeline completed successfully.")
+        tracker.mark_processed(source_file)
+
+        logger.success("Pipeline completed successfully.")
