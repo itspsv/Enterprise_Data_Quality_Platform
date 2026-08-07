@@ -6,7 +6,11 @@ class ValidationEngine:
     Executes multiple validation rules and collects the results.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        primary_key: str,
+    ):
+        self.primary_key = primary_key
         self.rules = []
 
     def add_rule(self, name: str, rule, **kwargs):
@@ -37,7 +41,7 @@ class ValidationEngine:
             results[item["name"]] = {
                 "rows": invalid_rows,
                 "count": invalid_rows.height,
-                "indices": set(invalid_rows.get_column("customer_id").to_list())
+                "indices": set(invalid_rows.get_column(self.primary_key).to_list())
             }
 
         return results
